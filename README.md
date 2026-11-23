@@ -16,6 +16,6 @@ The app uses relative `./` paths, so it works both at the domain root and at a r
 ## Notes
 
 - All map assets are inlined into `index.html`.
-- `sw.js` caches the app shell as `map-v10`.
+- `sw.js` caches the app shell as `map-v11`.
 - The weather widget keeps the last successful forecast in `localStorage` and shows it with an `offline • time` caption when offline.
 - When installed to the iOS Home Screen, launch it once while online so Safari can populate the standalone service worker cache.

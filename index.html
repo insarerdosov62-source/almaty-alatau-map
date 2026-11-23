@@ -1804,6 +1804,14 @@ body.atlas-enter .statusbar, body.atlas-enter .stage,
 body.atlas-exit .topbar, body.atlas-exit .sidebar,
 body.atlas-exit .statusbar, body.atlas-exit .stage { pointer-events: none; }
 
+/* Пока вступительная растворяется, элементы уже стоят в стартовых позициях,
+   но анимация не идёт — так не будет рывка в момент закрытия диалога. */
+body.atlas-paused .topbar, body.atlas-paused .sidebar,
+body.atlas-paused .statusbar, body.atlas-paused .stage,
+body.atlas-paused .map-header, body.atlas-paused .view-toggle,
+body.atlas-paused .map-tools, body.atlas-paused .legend,
+body.atlas-paused .scale, body.atlas-paused .mobile-nav { animation-play-state: paused; }
+
 @media(prefers-reduced-motion:reduce){body.atlas-enter *,body.atlas-exit *{animation:none!important}}
 @media(max-width:390px){.topbar{gap:6px;padding-inline:10px}.top-actions{gap:6px}.location{font-size:.65rem}}
 
@@ -8039,17 +8047,26 @@ const noMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // Анимации только визуальные: классы снимаются по таймеру, так что после перехода
 // разметка, размеры и расчёты камеры ровно те же, что и раньше.
-function playAtlasEntrance() {
+function prepareAtlasEntrance() {
   if (noMotion()) return;
-  document.body.classList.remove("atlas-exit");
-  document.body.classList.add("atlas-enter");
+  const body = document.body.classList;
+  // Пока вступительная ещё непрозрачна, ставим интерфейс в стартовые позиции
+  // и держим анимацию на паузе — иначе был бы виден рывок на 0.5 секунде.
+  body.remove("atlas-exit");
+  body.add("atlas-enter", "atlas-paused");
+  clearTimeout(atlasAnimTimer);
+}
+
+function startAtlasEntrance() {
+  if (noMotion()) return;
+  document.body.classList.remove("atlas-paused");
   clearTimeout(atlasAnimTimer);
   atlasAnimTimer = setTimeout(() => document.body.classList.remove("atlas-enter"), 1100);
 }
 
 function goWelcome() {
   if (document.body.classList.contains("atlas-exit")) return;
-  document.body.classList.remove("atlas-enter");
+  document.body.classList.remove("atlas-enter", "atlas-paused");
   welcome.classList.remove("leaving"); // иначе вступительная откроется прозрачной
   if (noMotion()) {
     clearTimeout(atlasAnimTimer);
@@ -8071,12 +8088,13 @@ function enterAtlas() {
     return;
   }
   welcome.classList.add("leaving");
+  prepareAtlasEntrance();
   let done = false;
   const finish = () => {
     if (done) return;
     done = true;
     if (welcome.open) welcome.close();
-    playAtlasEntrance();
+    startAtlasEntrance();
   };
   welcome.addEventListener("transitionend", event => {
     if (event.target === welcome && event.propertyName === "opacity") finish();
