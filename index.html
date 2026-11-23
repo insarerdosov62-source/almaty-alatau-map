@@ -130,6 +130,7 @@ button img {
   gap: 10px;
   padding: 0;
   white-space: nowrap;
+  min-width: 0;
 }
 .brand img {
   width: 41px;
@@ -139,6 +140,9 @@ button img {
   font-size: 1.52rem;
   font-weight: 680;
   letter-spacing: -0.075em;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .brand strong {
   font-weight: 440;
@@ -1776,7 +1780,8 @@ dialog a {
 #support-status{display:block;font-size:.85rem;color:#c2cec3}#support-status:not(:empty){margin-top:8px}
 @media(max-width:900px){.top-actions .location,.top-actions .top-rule{display:none}.top-actions{gap:8px}.topbar .about-open{width:40px;height:40px;justify-content:center}.about-open span{display:none}}
 @media(max-width:510px){.topbar{gap:4px;padding-inline:10px}.topbar .brand-divider,.topbar .brand-caption{display:none}.topbar .brand>span{font-size:1.16rem}.topbar .brand img{width:29px}.topbar .support-open{padding:0 10px;font-size:.8rem;min-height:40px}.top-actions{gap:2px}}
-@media(max-width:355px){.topbar .beta-tag{display:none}}
+@media(max-width:430px){.topbar .brand .beta-tag{display:none}}
+@media(max-width:352px){.topbar .brand>span{display:none}}
 
 .topbar #support-open{width:40px;height:40px;min-height:40px;padding:0;border-radius:50%;background:transparent;color:#ffc295}.topbar #support-open:hover,.topbar #support-open:focus-visible{background:#354039}
 
