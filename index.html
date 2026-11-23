@@ -2134,6 +2134,7 @@ dialog a {
   font-size: .59rem;
   line-height: 1.35;
 }
+.av-hint { margin: 0 0 7px; color: #b9c5b6; font-size: .58rem; line-height: 1.3; }
 .av-note { margin: 5px 0 0; color: #8fa091; font-size: .56rem; }
 @media (max-width: 760px), (max-width: 1000px) and (max-height: 540px) {
   .avalanche-legend {
@@ -2411,6 +2412,7 @@ dialog a {
           </div>
           <div class="av-badges" id="av-badges"></div>
           <div class="av-date" id="av-date"></div>
+          <p class="av-hint" id="av-hint"></p>
           <div class="av-scale" id="av-scale"></div>
           <p class="av-disclaimer">Не является официальным прогнозом. Низкая опасность — не значит безопасно. В офлайне данные могут устареть.</p>
           <p class="av-note" id="av-note"></p>
@@ -5298,7 +5300,8 @@ function labelRank(obj) {
   return 1;
 }
 function placeLabels() {
-  markerLayer.hidden = !labels;
+  // В режиме лавинной сетки маркеры закрывают клетки — оставляем только сетку.
+  markerLayer.hidden = !labels || avVisible;
   const used = [".map-header", ".view-toggle", "#lens-control", ".map-tools", ".legend", ".avalanche-legend", ".mobile-nav"]
     .map($)
     .filter((n) => n.offsetWidth > 0)
@@ -7331,6 +7334,7 @@ const AV_TEXT = {
     issued: "Выпущено",
     validTo: "Действует до",
     note: "Сетка 11 бассейновых полос × 6 поясов; уровень задан для каждой клетки. Границы приблизительные, уровни демонстрационные.",
+    hint: "Маркеры скрыты, чтобы была видна сетка. Выключите слой, чтобы вернуть подписи.",
     source: "Alatau Atlas, неофициальный обзор по открытым данным"
   },
   en: {
@@ -7340,6 +7344,7 @@ const AV_TEXT = {
     issued: "Issued",
     validTo: "Valid to",
     note: "Grid of 11 basin columns x 6 bands, with a level per cell. Boundaries are approximate; levels are illustrative.",
+    hint: "Markers are hidden so the grid stays clear. Turn off the layer to restore labels.",
     source: "Alatau Atlas, unofficial review based on open data"
   }
 };
@@ -7348,13 +7353,15 @@ const avOverlay = $("#avalanche-overlay"),
   avToggle = $("#avalanche-toggle"),
   avBadges = $("#av-badges"),
   avDateEl = $("#av-date"),
-  avNoteEl = $("#av-note");
+  avNoteEl = $("#av-note"),
+  avHintEl = $("#av-hint");
 const avRows = [],
   avZones = [];
 let avData = null,
   avState = "loading",
   avLoading = false,
-  avExpired = true;
+  avExpired = true,
+  avVisible = false;
 const avFormatters = {
   ru: new Intl.DateTimeFormat("ru-RU", { timeZone: "Asia/Almaty", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }),
   en: new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Almaty", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })
@@ -7544,6 +7551,7 @@ function refreshAvalancheText() {
     ? t.issued + ": " + avFormatDate(avData.issuedAt) + " · " + t.validTo + ": " + avFormatDate(avData.validTo)
     : t.noData;
   avNoteEl.textContent = t.note + " · " + t.source;
+  avHintEl.textContent = t.hint;
   for (const row of avRows) {
     row.name.textContent = lang === "en" ? row.item.en : row.item.ru;
     row.note.textContent = lang === "en" ? row.item.noteEn : row.item.noteRu;
@@ -7603,6 +7611,7 @@ function drawAvalancheOverlay() {
 }
 function setAvalancheVisible(on) {
   // SVGElement не отражает IDL-свойство hidden — работаем напрямую с атрибутом.
+  avVisible = on;
   avOverlay.toggleAttribute("hidden", !on);
   avLegend.hidden = !on;
   if (on && !avData && !avLoading) loadAvalanche();
@@ -7616,7 +7625,7 @@ window.__alatauAvalanche = { refreshText: refreshAvalancheText, reload: loadAval
 
 $("#labels-setting").onchange = (e) => {
   labels = e.target.checked;
-  if (labels) {
+  if (labels && !avVisible) {
     markerLayer.hidden = false;
     measureLabels();
   }
@@ -8311,6 +8320,7 @@ supportDialog.addEventListener("close", () => {
     ["Действует до", "Valid to"],
     ["Нет данных / просрочено", "No data / expired"],
     ["Границы бассейнов приблизительные. Уровни демонстрационные.", "Basin boundaries are approximate. Levels are illustrative."],
+    ["Маркеры скрыты, чтобы была видна сетка. Выключите слой, чтобы вернуть подписи.", "Markers are hidden so the grid stays clear. Turn off the layer to restore labels."],
     ["Alatau Atlas, неофициальный обзор по открытым данным", "Alatau Atlas, unofficial review based on open data"]
   ];
 
