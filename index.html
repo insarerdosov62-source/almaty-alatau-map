@@ -2012,6 +2012,141 @@ dialog a {
   }
   .topbar .about-open:hover { background: #2c3730; color: #fff; }
 }
+/* === Лавинная опасность: оверлей и легенда (MVP) === */
+#avalanche-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 2;
+}
+#avalanche-overlay[hidden] { display: none; }
+.av-zone {
+  fill-opacity: .34;
+  stroke: none;
+}
+.av-outline {
+  fill: none;
+  stroke-width: 1.6;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+.av-zone.av-expired {
+  fill: #cccccc;
+  fill-opacity: .16;
+}
+.av-outline.av-expired {
+  stroke: #8d9aa0;
+  stroke-dasharray: 5 4;
+}
+.av-badge rect {
+  fill: #16201be6;
+  stroke: #d8e0d4;
+  stroke-width: 1;
+}
+.av-badge.av-expired rect { fill: #2b3230e6; stroke: #9aa6a5; }
+.av-badge text {
+  font: 600 10px var(--mono);
+  fill: #f2f5e9;
+}
+.avalanche-legend {
+  position: absolute;
+  z-index: 3;
+  left: 30px;
+  bottom: 112px;
+  box-sizing: border-box;
+  width: 196px;
+  padding: 9px 10px 10px;
+  color: #d8e0d4;
+  background: #171f1be8;
+  border: 1px solid #4a5548;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px #08100c66;
+  font-size: .68rem;
+  line-height: 1.35;
+  pointer-events: none;
+}
+.avalanche-legend[hidden] { display: none; }
+.av-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  color: #e7ecdf;
+  font-size: .74rem;
+  font-weight: 600;
+}
+.av-head .icon { width: 15px; height: 15px; color: #f0bc91; }
+.av-badges { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+.av-badges:empty { display: none; }
+.av-badge {
+  padding: 2px 5px;
+  border: 1px solid;
+  border-radius: 4px;
+  font: 600 .56rem/1.2 var(--mono);
+  letter-spacing: .03em;
+  white-space: nowrap;
+}
+.av-badge.sample { color: #ffd7a1; border-color: #a9703c; background: #4a2f17cc; }
+.av-badge.expired { color: #d3dad8; border-color: #7d8a89; background: #373f3dcc; }
+.av-badge.empty { color: #d3dad8; border-color: #104efb; background: #233354cc; }
+.av-date {
+  margin-bottom: 7px;
+  color: #aebcaf;
+  font: .6rem/1.35 var(--mono);
+  overflow-wrap: anywhere;
+}
+.av-scale { display: grid; gap: 3px; }
+.av-row {
+  display: grid;
+  grid-template-columns: 14px 14px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 5px;
+  align-items: center;
+}
+.av-row i {
+  grid-row: 1 / 3;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--sws, #aab);
+  border-radius: 3px;
+  background: var(--sw, #ccc);
+  opacity: .38;
+}
+.av-row b { color: #edf0e3; font: 600 .68rem var(--mono); }
+.av-row span { color: #dbe3d5; font-size: .66rem; }
+.av-row small {
+  grid-column: 2 / 4;
+  color: #98a697;
+  font-size: .58rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.av-row-none i { opacity: .5; }
+.av-disclaimer {
+  margin: 7px 0 0;
+  padding-top: 6px;
+  border-top: 1px solid #4a5548;
+  color: #b9c5b6;
+  font-size: .59rem;
+  line-height: 1.35;
+}
+.av-note { margin: 5px 0 0; color: #8fa091; font-size: .56rem; }
+@media (max-width: 760px), (max-width: 1000px) and (max-height: 540px) {
+  .avalanche-legend {
+    left: 12px;
+    bottom: 172px;
+    width: min(196px, calc(100% - 76px));
+    padding: 7px 8px 8px;
+  }
+  .av-head { font-size: .68rem; }
+  .av-row small { font-size: .54rem; }
+  .av-disclaimer { font-size: .55rem; }
+  .av-date { font-size: .56rem; }
+}
 </style>
   </head>
   <body>
@@ -2045,6 +2180,11 @@ dialog a {
         <symbol id="i-layers" viewBox="0 0 24 24">
           <path d="m2 8 10-5 10 5-10 5Z" />
           <path d="m3 12 9 4.5 9-4.5M3 16.5l9 4.5 9-4.5" />
+        </symbol>
+        <symbol id="i-avalanche" viewBox="0 0 24 24">
+          <path d="M2.5 18.5 9 7l3.2 5.2 2.1-3.1L21.5 18.5Z" />
+          <path d="M6.1 11.4 8.3 9l2.7 4.4M13.1 12.2l1.4-2 3.6 5.6" />
+          <path d="M2.5 18.5h19" />
         </symbol>
         <symbol id="i-focus" viewBox="0 0 24 24">
           <path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4" />
@@ -2195,6 +2335,10 @@ dialog a {
               ><svg class="icon"><use href="#i-contours" /></svg><span>Горизонтали</span
               ><input type="checkbox" id="contour-setting" /><span class="switch"></span
             ></label>
+            <label class="setting" id="avalanche-setting"
+              ><svg class="icon"><use href="#i-avalanche" /></svg><span>Лавинная опасность</span
+              ><input type="checkbox" id="avalanche-toggle" /><span class="switch"></span
+            ></label>
             <label class="setting trails-unavailable"><svg class="icon" aria-hidden="true"><use href="#i-map"/></svg><span>Тропы и маршруты <small>Временно недоступно</small></span><input type="checkbox" id="trail-switch" disabled autocomplete="off"><span class="switch"></span></label>
             <label class="setting" id="wx-setting"><span aria-hidden="true">☂</span><span>Погода</span><input type="checkbox" id="wx-toggle" disabled><span class="switch"></span></label>
             <div id="wx-panel" hidden>
@@ -2256,6 +2400,18 @@ dialog a {
         <div id="map-loading" role="status">Загружаем рельеф…</div>
         <div class="marker-layer" id="marker-layer">
           <svg id="leader-lines" aria-hidden="true"></svg>
+        </div>
+        <svg id="avalanche-overlay" aria-hidden="true" hidden></svg>
+        <div class="avalanche-legend" id="avalanche-legend" hidden>
+          <div class="av-head">
+            <svg class="icon" aria-hidden="true"><use href="#i-avalanche" /></svg>
+            <span>Лавинная опасность</span>
+          </div>
+          <div class="av-badges" id="av-badges"></div>
+          <div class="av-date" id="av-date"></div>
+          <div class="av-scale" id="av-scale"></div>
+          <p class="av-disclaimer">Не является официальным прогнозом. Низкая опасность — не значит безопасно. В офлайне данные могут устареть.</p>
+          <p class="av-note" id="av-note"></p>
         </div>
         <div class="map-tools">
           <button hidden type="button" id="deselect" class="square" aria-label="Снять выбор и вернуть прежний вид" title="Снять выбор и вернуть прежний вид"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button>
@@ -4990,6 +5146,7 @@ function draw(now) {
   renderer.draw(camera, layer, contours, moving);
   drawGround();
   placeLabels();
+  drawAvalancheOverlay();
   updateInstruments();
   if (animation || moving) requestDraw();
 }
@@ -5140,7 +5297,7 @@ function labelRank(obj) {
 }
 function placeLabels() {
   markerLayer.hidden = !labels;
-  const used = [".map-header", ".view-toggle", "#lens-control", ".map-tools", ".legend", ".mobile-nav"]
+  const used = [".map-header", ".view-toggle", "#lens-control", ".map-tools", ".legend", ".avalanche-legend", ".mobile-nav"]
     .map($)
     .filter((n) => n.offsetWidth > 0)
     .map(screenBox);
@@ -7154,6 +7311,340 @@ window.addEventListener("offline", () => {
   renderWeather();
 });
 
+/* === Лавинная опасность: статический оверлей, легенда и SAMPLE-предохранитель === */
+const AVALANCHE_PATH = "./data/avalanche-zones.geojson";
+const AV_LEVELS = [
+  { level: 1, ru: "Низкая", en: "Low", noteRu: "Осторожно в зонах отрыва", noteEn: "Careful in start zones", color: "#ccff66", stroke: "#a6d64f" },
+  { level: 2, ru: "Умеренная", en: "Moderate", noteRu: "Умеренный риск в отдельных зонах", noteEn: "Moderate risk in some areas", color: "#ffff00", stroke: "#d6d65a" },
+  { level: 3, ru: "Значительная", en: "Considerable", noteRu: "Значительный риск, требуется осторожность", noteEn: "Considerable risk, use caution", color: "#ff9900", stroke: "#ffb65e" },
+  { level: 4, ru: "Высокая", en: "High", noteRu: "Высокий риск, избегайте открытых склонов", noteEn: "High risk, avoid exposed slopes", color: "#ff0000", stroke: "#ff6b5c" },
+  { level: 5, ru: "Очень высокая", en: "Very High", noteRu: "Очень высокий риск", noteEn: "Very high risk", color: "#8b0000", stroke: "#ff6b5c" },
+  { level: null, ru: "Нет данных / просрочено", en: "No data / expired", noteRu: "Серый — данных нет или срок истёк", noteEn: "Grey — no data or expired", color: "#cccccc", stroke: "#104efb" }
+];
+const AV_TEXT = {
+  ru: {
+    sampleBadge: "ПРИМЕР ДАННЫХ / SAMPLE DATA",
+    expired: "Данные устарели",
+    noData: "Нет актуальных данных",
+    issued: "Выпущено",
+    validTo: "Действует до",
+    note: "Вся площадь карты поделена на непересекающиеся бассейновые секторы. Границы приблизительные, уровни демонстрационные.",
+    source: "Alatau Atlas, неофициальный обзор по открытым данным"
+  },
+  en: {
+    sampleBadge: "ПРИМЕР ДАННЫХ / SAMPLE DATA",
+    expired: "Data expired",
+    noData: "No current data",
+    issued: "Issued",
+    validTo: "Valid to",
+    note: "The whole map area is divided into non-overlapping basin sectors. Boundaries are approximate; levels are illustrative.",
+    source: "Alatau Atlas, unofficial review based on open data"
+  }
+};
+const avOverlay = $("#avalanche-overlay"),
+  avLegend = $("#avalanche-legend"),
+  avToggle = $("#avalanche-toggle"),
+  avBadges = $("#av-badges"),
+  avDateEl = $("#av-date"),
+  avNoteEl = $("#av-note");
+const avRows = [],
+  avZones = [];
+let avData = null,
+  avState = "loading",
+  avLoading = false,
+  avExpired = true;
+const avFormatters = {
+  ru: new Intl.DateTimeFormat("ru-RU", { timeZone: "Asia/Almaty", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+  en: new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Almaty", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })
+};
+function avLang() {
+  return window.__alatauI18n && window.__alatauI18n.language === "en" ? "en" : "ru";
+}
+function avFormatDate(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return avFormatters[avLang()].format(date);
+}
+function buildAvalancheLegend() {
+  const host = $("#av-scale");
+  for (const item of AV_LEVELS) {
+    const row = document.createElement("div");
+    row.className = "av-row" + (item.level === null ? " av-row-none" : "");
+    row.style.setProperty("--sw", item.color);
+    row.style.setProperty("--sws", item.stroke);
+    row.innerHTML = '<i aria-hidden="true"></i><b></b><span></span><small></small>';
+    row.querySelector("b").textContent = item.level === null ? "—" : String(item.level);
+    host.append(row);
+    avRows.push({ item, name: row.querySelector("span"), note: row.querySelector("small") });
+  }
+}
+function avGeometryRings(geometry) {
+  if (!geometry) return [];
+  if (geometry.type === "Polygon") return Array.isArray(geometry.coordinates) ? geometry.coordinates : [];
+  if (geometry.type === "MultiPolygon") return Array.isArray(geometry.coordinates) ? geometry.coordinates.flat(1) : [];
+  return [];
+}
+/* Зоны покрывают всю площадь REGION и не перекрываются. Чтобы большой
+   многоугольник «лежал» на рельефе, разбиваем его на плитки глобальной сетки
+   (каждая плитка отсекается по выпуклому бассейновому блоку), а высоту берём
+   из DEM для каждой вершины отдельно. Контур рисуем отдельным путём. */
+const AV_GRID_LON = 32, AV_GRID_LAT = 26;
+
+function avSignedArea(ring) {
+  let sum = 0;
+  for (let i = 0; i < ring.length; i++) {
+    const a = ring[i], b = ring[(i + 1) % ring.length];
+    sum += a[0] * b[1] - b[0] * a[1];
+  }
+  return sum;
+}
+function avClipConvex(subject, clip) {
+  // Sutherland–Hodgman: оставляем часть subject слева от каждого ребра clip (CCW).
+  let out = subject;
+  for (let i = 0; i < clip.length && out.length; i++) {
+    const a = clip[i], b = clip[(i + 1) % clip.length];
+    const ex = b[0] - a[0], ey = b[1] - a[1];
+    const side = (p) => ex * (p[1] - a[1]) - ey * (p[0] - a[0]);
+    const input = out;
+    out = [];
+    for (let j = 0; j < input.length; j++) {
+      const p = input[j], q = input[(j + 1) % input.length];
+      const sp = side(p), sq = side(q);
+      if (sp >= 0) out.push(p);
+      if ((sp < 0 && sq > 0) || (sp > 0 && sq < 0)) {
+        const t = sp / (sp - sq);
+        out.push([p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])]);
+      }
+    }
+  }
+  return out;
+}
+function avDensify(ring, step) {
+  const segments = [];
+  for (let i = 0; i < ring.length; i++) {
+    const a = ring[i], b = ring[(i + 1) % ring.length];
+    const n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / step));
+    for (let k = 0; k < n; k++) {
+      const t0 = k / n, t1 = (k + 1) / n;
+      segments.push([
+        [a[0] + (b[0] - a[0]) * t0, a[1] + (b[1] - a[1]) * t0],
+        [a[0] + (b[0] - a[0]) * t1, a[1] + (b[1] - a[1]) * t1]
+      ]);
+    }
+  }
+  return segments;
+}
+function avWorldPoint(lon, lat) {
+  const w = toWorld(lon, lat);
+  return { x: w.x, z: w.z, m: elevation ? elevation.sample(w.x, w.z) : REGION.base };
+}
+function avVertexKey(p) {
+  return p[0].toFixed(5) + "," + p[1].toFixed(5);
+}
+function buildAvalancheZones() {
+  avOverlay.replaceChildren();
+  avZones.length = 0;
+  const dLon = (REGION.east - REGION.west) / AV_GRID_LON,
+    dLat = (REGION.north - REGION.south) / AV_GRID_LAT;
+  const grid = [];
+  for (let i = 0; i < AV_GRID_LON; i++)
+    for (let j = 0; j < AV_GRID_LAT; j++) {
+      const x0 = REGION.west + i * dLon, y0 = REGION.south + j * dLat;
+      grid.push([[x0, y0], [x0 + dLon, y0], [x0 + dLon, y0 + dLat], [x0, y0 + dLat]]);
+    }
+  for (const feature of avData.features || []) {
+    const props = feature.properties || {};
+    const rings = avGeometryRings(feature.geometry)
+      .map((ring) => (Array.isArray(ring) ? ring : [])
+        .filter((pair) => Array.isArray(pair) && pair.length >= 2)
+        .map((pair) => [Number(pair[0]), Number(pair[1])])
+        .filter((pair) => Number.isFinite(pair[0]) && Number.isFinite(pair[1])))
+      .map((ring) => {
+        const r = ring.slice();
+        if (r.length > 1 && r[0][0] === r[r.length - 1][0] && r[0][1] === r[r.length - 1][1]) r.pop();
+        for (let i = r.length - 1; i > 0; i--)
+          if (r[i][0] === r[i - 1][0] && r[i][1] === r[i - 1][1]) r.splice(i, 1);
+        return avSignedArea(r) < 0 ? r.reverse() : r;
+      })
+      .filter((ring) => ring.length > 2);
+    if (!rings.length) continue;
+
+    // Драпируемая заливка: плитки глобальной сетки, отсечённые по каждому блоку.
+    const tiles = [];
+    for (const ring of rings) {
+      const lons = ring.map((p) => p[0]), lats = ring.map((p) => p[1]);
+      const minLon = Math.min(...lons), maxLon = Math.max(...lons),
+        minLat = Math.min(...lats), maxLat = Math.max(...lats);
+      for (const cell of grid) {
+        const cx = cell[0][0], cy = cell[0][1];
+        if (cx + dLon <= minLon || cx >= maxLon || cy + dLat <= minLat || cy >= maxLat) continue;
+        const clipped = avClipConvex(cell, ring);
+        if (clipped.length < 3) continue;
+        tiles.push(clipped.map(([lon, lat]) => avWorldPoint(lon, lat)));
+      }
+    }
+
+    // Контур: удаляем рёбра, общие для блоков одной зоны, и сшиваем остальные.
+    const segments = [];
+    for (const ring of rings) segments.push(...avDensify(ring, 0.012));
+    const counts = new Map();
+    for (const seg of segments) {
+      const key = [avVertexKey(seg[0]), avVertexKey(seg[1])].sort().join("|");
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+    const border = segments.filter((seg) =>
+      counts.get([avVertexKey(seg[0]), avVertexKey(seg[1])].sort().join("|")) === 1);
+    const ends = new Map();
+    border.forEach((seg, idx) => {
+      for (const key of [avVertexKey(seg[0]), avVertexKey(seg[1])]) {
+        if (!ends.has(key)) ends.set(key, []);
+        ends.get(key).push(idx);
+      }
+    });
+    const used = new Uint8Array(border.length);
+    const borders = [];
+    for (let s = 0; s < border.length; s++) {
+      if (used[s]) continue;
+      used[s] = 1;
+      const chain = [border[s][0], border[s][1]];
+      const grow = (fromStart) => {
+        for (let guard = 0; guard < border.length; guard++) {
+          const at = fromStart ? chain[0] : chain[chain.length - 1];
+          const next = (ends.get(avVertexKey(at)) || []).find((i) => !used[i]);
+          if (next === undefined) return;
+          used[next] = 1;
+          const seg = border[next];
+          const other = avVertexKey(seg[0]) === avVertexKey(at) ? seg[1] : seg[0];
+          if (fromStart) chain.unshift(other); else chain.push(other);
+        }
+      };
+      grow(false);
+      grow(true);
+      borders.push(chain.map(([lon, lat]) => avWorldPoint(lon, lat)));
+    }
+
+    // Точка для бейджа: labelPoint из данных, иначе центр первого кольца.
+    let x, z;
+    const lp = props.labelPoint;
+    if (Array.isArray(lp) && lp.length >= 2 && Number.isFinite(Number(lp[0])) && Number.isFinite(Number(lp[1]))) {
+      const w = toWorld(Number(lp[0]), Number(lp[1]));
+      x = w.x; z = w.z;
+    } else {
+      const outer = rings[0];
+      x = outer.reduce((sum, p) => sum + p[0], 0) / outer.length;
+      z = outer.reduce((sum, p) => sum + p[1], 0) / outer.length;
+    }
+    const fill = elem("path", { class: "av-zone" }),
+      stroke = elem("path", { class: "av-outline" }),
+      badge = elem("g", { class: "av-badge" }),
+      box = elem("rect", { x: -12, y: -9, width: 24, height: 18, rx: 4 }),
+      text = elem("text", { x: 0, y: 4, "text-anchor": "middle" });
+    badge.append(box, text);
+    avOverlay.append(fill, stroke, badge);
+    avZones.push({
+      fill, stroke, badge, text, tiles, borders, x, z,
+      metres: elevation ? elevation.sample(x, z) : null,
+      level: Number(props.level) || 0
+    });
+  }
+}
+function applyAvalancheStyle() {
+  for (const zone of avZones) {
+    const info = AV_LEVELS.find((item) => item.level === zone.level);
+    zone.fill.classList.toggle("av-expired", avExpired);
+    zone.fill.setAttribute("fill", avExpired ? "#cccccc" : (info ? info.color : "#cccccc"));
+    zone.stroke.classList.toggle("av-expired", avExpired);
+    zone.stroke.setAttribute("stroke", avExpired ? "#8d9aa0" : (info ? info.stroke : "#aab"));
+    zone.badge.classList.toggle("av-expired", avExpired);
+    const label = avExpired ? "—" : String(zone.level || "?");
+    if (zone.text.textContent !== label) zone.text.textContent = label;
+  }
+}
+function refreshAvalancheText() {
+  const lang = avLang(),
+    t = AV_TEXT[lang] || AV_TEXT.ru;
+  avBadges.replaceChildren();
+  const addBadge = (kind, text) => {
+    const node = document.createElement("span");
+    node.className = "av-badge " + kind;
+    node.textContent = text;
+    avBadges.append(node);
+  };
+  if (avData && avData.status === "sample") addBadge("sample", t.sampleBadge);
+  if (!avData || avState === "error") addBadge("empty", t.noData);
+  else if (avExpired) addBadge("expired", t.expired);
+  avDateEl.textContent = avData
+    ? t.issued + ": " + avFormatDate(avData.issuedAt) + " · " + t.validTo + ": " + avFormatDate(avData.validTo)
+    : t.noData;
+  avNoteEl.textContent = t.note + " · " + t.source;
+  for (const row of avRows) {
+    row.name.textContent = lang === "en" ? row.item.en : row.item.ru;
+    row.note.textContent = lang === "en" ? row.item.noteEn : row.item.noteRu;
+  }
+  applyAvalancheStyle();
+  requestDraw();
+}
+async function loadAvalanche() {
+  if (avLoading) return;
+  avLoading = true;
+  avState = "loading";
+  refreshAvalancheText();
+  try {
+    const response = await fetch(AVALANCHE_PATH, { headers: { Accept: "application/json" } });
+    if (!response.ok) throw new Error("HTTP " + response.status);
+    const data = await response.json();
+    if (!data || data.scale !== "EAWS-1-5" || !Array.isArray(data.features) || !data.features.length) throw new Error("invalid payload");
+    const validTo = Date.parse(data.validTo);
+    avData = data;
+    avExpired = data.status !== "actual" || !Number.isFinite(validTo) || Date.now() > validTo;
+    avState = "ok";
+    buildAvalancheZones();
+  } catch (error) {
+    // Офлайн без кэша: аккуратно показываем «Нет актуальных данных».
+    avState = "error";
+  }
+  avLoading = false;
+  refreshAvalancheText();
+}
+function drawAvalancheOverlay() {
+  if (avOverlay.hasAttribute("hidden") || !camera || !avZones.length) return;
+  const r = (n) => Math.round(n * 10) / 10;
+  const point = (v) => {
+    const s = camera.project(v.x, camera.surfaceY(v.m), v.z);
+    return r(s.x) + " " + r(s.y);
+  };
+  for (const zone of avZones) {
+    let fill = "";
+    for (const tile of zone.tiles) {
+      if (tile.length < 3) continue;
+      fill += "M" + tile.map(point).join("L") + "Z";
+    }
+    if (zone.fill.getAttribute("d") !== fill) zone.fill.setAttribute("d", fill);
+    let outline = "";
+    for (const border of zone.borders) {
+      if (border.length < 2) continue;
+      outline += "M" + border.map(point).join("L");
+    }
+    if (zone.stroke.getAttribute("d") !== outline) zone.stroke.setAttribute("d", outline);
+    const s = camera.project(zone.x,
+      camera.surfaceY(zone.metres === null ? REGION.base : zone.metres), zone.z);
+    zone.badge.setAttribute("transform", "translate(" + s.x.toFixed(1) + " " + s.y.toFixed(1) + ")");
+    zone.badge.style.display = s.x < -40 || s.y < -40 || s.x > camera.w + 40 || s.y > camera.h + 40 ? "none" : "";
+  }
+}
+function setAvalancheVisible(on) {
+  // SVGElement не отражает IDL-свойство hidden — работаем напрямую с атрибутом.
+  avOverlay.toggleAttribute("hidden", !on);
+  avLegend.hidden = !on;
+  if (on && !avData && !avLoading) loadAvalanche();
+  requestDraw();
+}
+avToggle.onchange = (event) => setAvalancheVisible(event.target.checked);
+buildAvalancheLegend();
+setAvalancheVisible(false);
+loadAvalanche();
+window.__alatauAvalanche = { refreshText: refreshAvalancheText, reload: loadAvalanche };
+
 $("#labels-setting").onchange = (e) => {
   labels = e.target.checked;
   if (labels) {
@@ -7838,7 +8329,20 @@ supportDialog.addEventListener("close", () => {
     ["Установить приложение", "Install app"],
     ["Понятно", "Got it"],
     ["Переключить на русский", "Switch to Russian"],
-    ["Switch to English", "Switch to English"]
+    ["Switch to English", "Switch to English"],
+    ["Лавинная опасность", "Avalanche danger"],
+    ["ПРИМЕР ДАННЫХ / SAMPLE DATA", "ПРИМЕР ДАННЫХ / SAMPLE DATA"],
+    ["Пример данных", "Sample data"],
+    ["Нет актуальных данных", "No current data"],
+    ["Данные устарели", "Data expired"],
+    ["Не является официальным прогнозом. Низкая опасность — не значит безопасно. В офлайне данные могут устареть.", "Not an official forecast. Low danger does not mean safe. Data may be outdated offline."],
+    ["Низкая опасность — не значит безопасно", "Low danger does not mean safe"],
+    ["Не является официальным прогнозом", "Not an official forecast"],
+    ["Выпущено", "Issued"],
+    ["Действует до", "Valid to"],
+    ["Нет данных / просрочено", "No data / expired"],
+    ["Границы бассейнов приблизительные. Уровни демонстрационные.", "Basin boundaries are approximate. Levels are illustrative."],
+    ["Alatau Atlas, неофициальный обзор по открытым данным", "Alatau Atlas, unofficial review based on open data"]
   ];
 
   const PHRASE_MAP = new Map(PHRASES.map(([ru, en]) => [ru.replace(/\s+/g, " ").trim(), en]));
@@ -8259,6 +8763,10 @@ supportDialog.addEventListener("close", () => {
       button.setAttribute("title", value);
     }
     applyLanguage();
+    try {
+      if (window.__alatauAvalanche && typeof window.__alatauAvalanche.refreshText === "function")
+        window.__alatauAvalanche.refreshText();
+    } catch {}
     if (lang === "en") augmentSearch();
   }
 
