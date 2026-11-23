@@ -7328,7 +7328,7 @@ const AV_TEXT = {
     noData: "Нет актуальных данных",
     issued: "Выпущено",
     validTo: "Действует до",
-    note: "Вся площадь карты поделена на непересекающиеся бассейновые секторы. Границы приблизительные, уровни демонстрационные.",
+    note: "Сетка 11 бассейновых полос × 6 поясов; уровень задан для каждой клетки. Границы приблизительные, уровни демонстрационные.",
     source: "Alatau Atlas, неофициальный обзор по открытым данным"
   },
   en: {
@@ -7337,7 +7337,7 @@ const AV_TEXT = {
     noData: "No current data",
     issued: "Issued",
     validTo: "Valid to",
-    note: "The whole map area is divided into non-overlapping basin sectors. Boundaries are approximate; levels are illustrative.",
+    note: "Grid of 11 basin columns x 6 bands, with a level per cell. Boundaries are approximate; levels are illustrative.",
     source: "Alatau Atlas, unofficial review based on open data"
   }
 };
@@ -7438,9 +7438,6 @@ function avWorldPoint(lon, lat) {
   const w = toWorld(lon, lat);
   return { x: w.x, z: w.z, m: elevation ? elevation.sample(w.x, w.z) : REGION.base };
 }
-function avVertexKey(p) {
-  return p[0].toFixed(5) + "," + p[1].toFixed(5);
-}
 function buildAvalancheZones() {
   avOverlay.replaceChildren();
   avZones.length = 0;
@@ -7454,6 +7451,7 @@ function buildAvalancheZones() {
     }
   for (const feature of avData.features || []) {
     const props = feature.properties || {};
+    const cellLevels = Array.isArray(props.cellLevels) ? props.cellLevels : [props.level];
     const rings = avGeometryRings(feature.geometry)
       .map((ring) => (Array.isArray(ring) ? ring : [])
         .filter((pair) => Array.isArray(pair) && pair.length >= 2)
@@ -7467,11 +7465,11 @@ function buildAvalancheZones() {
         return avSignedArea(r) < 0 ? r.reverse() : r;
       })
       .filter((ring) => ring.length > 2);
-    if (!rings.length) continue;
+    rings.forEach((ring, index) => {
+      const level = Number(cellLevels[index]) || Number(cellLevels[0]) || Number(props.level) || 0;
 
-    // Драпируемая заливка: плитки глобальной сетки, отсечённые по каждому блоку.
-    const tiles = [];
-    for (const ring of rings) {
+      // Драпируемая заливка этой клетки: плитки глобальной сетки.
+      const tiles = [];
       const lons = ring.map((p) => p[0]), lats = ring.map((p) => p[1]);
       const minLon = Math.min(...lons), maxLon = Math.max(...lons),
         minLat = Math.min(...lats), maxLat = Math.max(...lats);
@@ -7482,69 +7480,34 @@ function buildAvalancheZones() {
         if (clipped.length < 3) continue;
         tiles.push(clipped.map(([lon, lat]) => avWorldPoint(lon, lat)));
       }
-    }
 
-    // Контур: удаляем рёбра, общие для блоков одной зоны, и сшиваем остальные.
-    const segments = [];
-    for (const ring of rings) segments.push(...avDensify(ring, 0.012));
-    const counts = new Map();
-    for (const seg of segments) {
-      const key = [avVertexKey(seg[0]), avVertexKey(seg[1])].sort().join("|");
-      counts.set(key, (counts.get(key) || 0) + 1);
-    }
-    const border = segments.filter((seg) =>
-      counts.get([avVertexKey(seg[0]), avVertexKey(seg[1])].sort().join("|")) === 1);
-    const ends = new Map();
-    border.forEach((seg, idx) => {
-      for (const key of [avVertexKey(seg[0]), avVertexKey(seg[1])]) {
-        if (!ends.has(key)) ends.set(key, []);
-        ends.get(key).push(idx);
+      // Контур клетки — так видны и вертикальные, и горизонтальные линии сетки.
+      const segments = avDensify(ring, 0.012);
+      const chain = segments.length ? [segments[0][0], segments[0][1]] : [];
+      for (let i = 1; i < segments.length; i++) chain.push(segments[i][1]);
+      const borders = [chain.map(([lon, lat]) => avWorldPoint(lon, lat))];
+
+      // Центр клетки — место для бейджа (только для уровней 4 и 5).
+      const w = toWorld(
+        lons.reduce((a, b) => a + b, 0) / lons.length,
+        lats.reduce((a, b) => a + b, 0) / lats.length
+      );
+      const fill = elem("path", { class: "av-zone" }),
+        stroke = elem("path", { class: "av-outline" });
+      avOverlay.append(fill, stroke);
+      let badge = null, text = null;
+      if (level >= 4) {
+        badge = elem("g", { class: "av-badge" });
+        const box = elem("rect", { x: -12, y: -9, width: 24, height: 18, rx: 4 });
+        text = elem("text", { x: 0, y: 4, "text-anchor": "middle" });
+        badge.append(box, text);
+        avOverlay.append(badge);
       }
-    });
-    const used = new Uint8Array(border.length);
-    const borders = [];
-    for (let s = 0; s < border.length; s++) {
-      if (used[s]) continue;
-      used[s] = 1;
-      const chain = [border[s][0], border[s][1]];
-      const grow = (fromStart) => {
-        for (let guard = 0; guard < border.length; guard++) {
-          const at = fromStart ? chain[0] : chain[chain.length - 1];
-          const next = (ends.get(avVertexKey(at)) || []).find((i) => !used[i]);
-          if (next === undefined) return;
-          used[next] = 1;
-          const seg = border[next];
-          const other = avVertexKey(seg[0]) === avVertexKey(at) ? seg[1] : seg[0];
-          if (fromStart) chain.unshift(other); else chain.push(other);
-        }
-      };
-      grow(false);
-      grow(true);
-      borders.push(chain.map(([lon, lat]) => avWorldPoint(lon, lat)));
-    }
-
-    // Точка для бейджа: labelPoint из данных, иначе центр первого кольца.
-    let x, z;
-    const lp = props.labelPoint;
-    if (Array.isArray(lp) && lp.length >= 2 && Number.isFinite(Number(lp[0])) && Number.isFinite(Number(lp[1]))) {
-      const w = toWorld(Number(lp[0]), Number(lp[1]));
-      x = w.x; z = w.z;
-    } else {
-      const outer = rings[0];
-      x = outer.reduce((sum, p) => sum + p[0], 0) / outer.length;
-      z = outer.reduce((sum, p) => sum + p[1], 0) / outer.length;
-    }
-    const fill = elem("path", { class: "av-zone" }),
-      stroke = elem("path", { class: "av-outline" }),
-      badge = elem("g", { class: "av-badge" }),
-      box = elem("rect", { x: -12, y: -9, width: 24, height: 18, rx: 4 }),
-      text = elem("text", { x: 0, y: 4, "text-anchor": "middle" });
-    badge.append(box, text);
-    avOverlay.append(fill, stroke, badge);
-    avZones.push({
-      fill, stroke, badge, text, tiles, borders, x, z,
-      metres: elevation ? elevation.sample(x, z) : null,
-      level: Number(props.level) || 0
+      avZones.push({
+        fill, stroke, badge, text, tiles, borders, x: w.x, z: w.z,
+        metres: elevation ? elevation.sample(w.x, w.z) : null,
+        level
+      });
     });
   }
 }
@@ -7555,9 +7518,11 @@ function applyAvalancheStyle() {
     zone.fill.setAttribute("fill", avExpired ? "#cccccc" : (info ? info.color : "#cccccc"));
     zone.stroke.classList.toggle("av-expired", avExpired);
     zone.stroke.setAttribute("stroke", avExpired ? "#8d9aa0" : (info ? info.stroke : "#aab"));
-    zone.badge.classList.toggle("av-expired", avExpired);
-    const label = avExpired ? "—" : String(zone.level || "?");
-    if (zone.text.textContent !== label) zone.text.textContent = label;
+    if (zone.badge) {
+      zone.badge.classList.toggle("av-expired", avExpired);
+      const label = avExpired ? "—" : String(zone.level || "?");
+      if (zone.text.textContent !== label) zone.text.textContent = label;
+    }
   }
 }
 function refreshAvalancheText() {
@@ -7626,10 +7591,12 @@ function drawAvalancheOverlay() {
       outline += "M" + border.map(point).join("L");
     }
     if (zone.stroke.getAttribute("d") !== outline) zone.stroke.setAttribute("d", outline);
-    const s = camera.project(zone.x,
-      camera.surfaceY(zone.metres === null ? REGION.base : zone.metres), zone.z);
-    zone.badge.setAttribute("transform", "translate(" + s.x.toFixed(1) + " " + s.y.toFixed(1) + ")");
-    zone.badge.style.display = s.x < -40 || s.y < -40 || s.x > camera.w + 40 || s.y > camera.h + 40 ? "none" : "";
+    if (zone.badge) {
+      const s = camera.project(zone.x,
+        camera.surfaceY(zone.metres === null ? REGION.base : zone.metres), zone.z);
+      zone.badge.setAttribute("transform", "translate(" + s.x.toFixed(1) + " " + s.y.toFixed(1) + ")");
+      zone.badge.style.display = s.x < -40 || s.y < -40 || s.x > camera.w + 40 || s.y > camera.h + 40 ? "none" : "";
+    }
   }
 }
 function setAvalancheVisible(on) {

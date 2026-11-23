@@ -1,6 +1,6 @@
 /* Alatau Atlas — офлайн-оболочка. Все данные карты встроены в index.html. */
 // При обновлении файлов приложения увеличьте версию: map-v2, map-v3 ...
-const CACHE_NAME = "map-v6";
+const CACHE_NAME = "map-v7";
 const AVALANCHE_CACHE = "avalanche-v1";
 const AVALANCHE_URL = new URL("./data/avalanche-zones.geojson", self.location.href).href;
 const APP_SHELL = [
