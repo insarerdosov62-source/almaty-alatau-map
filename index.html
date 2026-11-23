@@ -1755,6 +1755,56 @@ dialog a {
 .welcome-brand{animation:welcome-rise .65s ease-out backwards}
 @keyframes welcome-rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){#welcome{transition:none}.welcome-brand,.welcome-body>*{animation:none}}
+
+/* Переход «вступительная страница -> атлас». Классы живут только во время анимации:
+   по её завершении JS их снимает, поэтому геометрия и расчёты камеры остаются прежними. */
+@keyframes atlas-in-top { from{opacity:0;transform:translateY(-100%)} to{opacity:1;transform:none} }
+@keyframes atlas-in-left { from{opacity:0;transform:translateX(-100%)} to{opacity:1;transform:none} }
+@keyframes atlas-in-right { from{opacity:0;transform:translateX(100%)} to{opacity:1;transform:none} }
+@keyframes atlas-in-bottom { from{opacity:0;transform:translateY(100%)} to{opacity:1;transform:none} }
+@keyframes atlas-in-map { from{opacity:0;transform:translateY(-115%)} to{opacity:1;transform:none} }
+
+body.atlas-enter .topbar,
+body.atlas-exit .topbar { animation: atlas-in-top .55s cubic-bezier(.2,.75,.23,1) both; }
+body.atlas-enter .sidebar,
+body.atlas-exit .sidebar { animation: atlas-in-left .6s cubic-bezier(.2,.75,.23,1) both; }
+body.atlas-enter .statusbar,
+body.atlas-exit .statusbar { animation: atlas-in-bottom .55s cubic-bezier(.2,.75,.23,1) both; }
+body.atlas-enter .stage,
+body.atlas-exit .stage { animation: atlas-in-map .85s cubic-bezier(.22,.61,.36,1) both; }
+
+body.atlas-enter .map-header,
+body.atlas-exit .map-header { animation: atlas-in-left .55s ease-out .22s both; }
+body.atlas-enter .view-toggle,
+body.atlas-exit .view-toggle { animation: atlas-in-right .55s ease-out .26s both; }
+body.atlas-enter .map-tools,
+body.atlas-exit .map-tools { animation: atlas-in-right .55s ease-out .3s both; }
+body.atlas-enter .legend,
+body.atlas-exit .legend { animation: atlas-in-bottom .55s ease-out .34s both; }
+body.atlas-enter .scale,
+body.atlas-exit .scale { animation: atlas-in-bottom .55s ease-out .38s both; }
+body.atlas-enter .mobile-nav,
+body.atlas-exit .mobile-nav { animation: atlas-in-bottom .5s ease-out .32s both; }
+
+/* Возврат на вступительную — тот же набор, но в обратную сторону и чуть быстрее. */
+body.atlas-exit .topbar,
+body.atlas-exit .sidebar,
+body.atlas-exit .statusbar,
+body.atlas-exit .stage,
+body.atlas-exit .map-header,
+body.atlas-exit .view-toggle,
+body.atlas-exit .map-tools,
+body.atlas-exit .legend,
+body.atlas-exit .scale,
+body.atlas-exit .mobile-nav { animation-direction: reverse; animation-duration: .6s; animation-delay: 0s; animation-timing-function: ease-in; }
+
+/* Пока идёт переход, движущиеся элементы не должны перехватывать указатель. */
+body.atlas-enter .topbar, body.atlas-enter .sidebar,
+body.atlas-enter .statusbar, body.atlas-enter .stage,
+body.atlas-exit .topbar, body.atlas-exit .sidebar,
+body.atlas-exit .statusbar, body.atlas-exit .stage { pointer-events: none; }
+
+@media(prefers-reduced-motion:reduce){body.atlas-enter *,body.atlas-exit *{animation:none!important}}
 @media(max-width:390px){.topbar{gap:6px;padding-inline:10px}.top-actions{gap:6px}.location{font-size:.65rem}}
 
 .trails-unavailable{cursor:default}.trails-unavailable small{display:block;font-size:.78rem;color:#afbaaf}.trails-unavailable .switch{opacity:.55}
@@ -7662,6 +7712,7 @@ $("#reset").onclick = () => overview(false);
 $("#brand-home").onclick = () => {
   closeSheet(false);
   overview(true);
+  goWelcome();
 };
 
 function openSheet(section, search = false) {
@@ -7982,14 +8033,51 @@ const welcome = $("#welcome");
 welcome.close();
 welcome.showModal();
 welcome.addEventListener("close",()=>$("#brand-home").focus({preventScroll:true}));
+
+let atlasAnimTimer = 0;
+const noMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// Анимации только визуальные: классы снимаются по таймеру, так что после перехода
+// разметка, размеры и расчёты камеры ровно те же, что и раньше.
+function playAtlasEntrance() {
+  if (noMotion()) return;
+  document.body.classList.remove("atlas-exit");
+  document.body.classList.add("atlas-enter");
+  clearTimeout(atlasAnimTimer);
+  atlasAnimTimer = setTimeout(() => document.body.classList.remove("atlas-enter"), 1100);
+}
+
+function goWelcome() {
+  if (document.body.classList.contains("atlas-exit")) return;
+  document.body.classList.remove("atlas-enter");
+  welcome.classList.remove("leaving"); // иначе вступительная откроется прозрачной
+  if (noMotion()) {
+    clearTimeout(atlasAnimTimer);
+    if (!welcome.open) welcome.showModal();
+    return;
+  }
+  document.body.classList.add("atlas-exit");
+  clearTimeout(atlasAnimTimer);
+  atlasAnimTimer = setTimeout(() => {
+    if (!welcome.open) welcome.showModal();
+    requestAnimationFrame(() => document.body.classList.remove("atlas-exit"));
+  }, 650);
+}
+
 function enterAtlas() {
   if (welcome.classList.contains("leaving")) return;
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  if (noMotion()) {
     welcome.close();
     return;
   }
   welcome.classList.add("leaving");
-  const finish = () => { if (welcome.open) welcome.close(); };
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    if (welcome.open) welcome.close();
+    playAtlasEntrance();
+  };
   welcome.addEventListener("transitionend", event => {
     if (event.target === welcome && event.propertyName === "opacity") finish();
   });
