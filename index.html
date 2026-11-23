@@ -2337,6 +2337,7 @@ dialog a {
             ></label>
             <label class="setting" id="avalanche-setting"
               ><svg class="icon"><use href="#i-avalanche" /></svg><span>Лавинная опасность</span
+              ><small class="beta-tag">Бета</small
               ><input type="checkbox" id="avalanche-toggle" /><span class="switch"></span
             ></label>
             <label class="setting trails-unavailable"><svg class="icon" aria-hidden="true"><use href="#i-map"/></svg><span>Тропы и маршруты <small>Временно недоступно</small></span><input type="checkbox" id="trail-switch" disabled autocomplete="off"><span class="switch"></span></label>
@@ -2406,6 +2407,7 @@ dialog a {
           <div class="av-head">
             <svg class="icon" aria-hidden="true"><use href="#i-avalanche" /></svg>
             <span>Лавинная опасность</span>
+            <small class="beta-tag">Бета</small>
           </div>
           <div class="av-badges" id="av-badges"></div>
           <div class="av-date" id="av-date"></div>
@@ -7332,7 +7334,7 @@ const AV_TEXT = {
     source: "Alatau Atlas, неофициальный обзор по открытым данным"
   },
   en: {
-    sampleBadge: "ПРИМЕР ДАННЫХ / SAMPLE DATA",
+    sampleBadge: "SAMPLE DATA",
     expired: "Data expired",
     noData: "No current data",
     issued: "Issued",
@@ -8572,22 +8574,40 @@ supportDialog.addEventListener("close", () => {
   }
 
   function capture(root) {
-    if (!root) return;
+    const beforeTexts = trackedTexts.length, beforeAttrs = trackedAttrs.length;
+    if (!root) return { texts: [], attrs: [] };
     if (root.nodeType === 3) {
       trackText(root);
-      return;
-    }
-    if (root.nodeType !== 1) return;
-    for (const name of ATTRS) trackAttr(root, name);
-    if (skipped(root)) return;
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-      acceptNode(node) {
-        return skipped(node) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+    } else if (root.nodeType === 1) {
+      for (const name of ATTRS) trackAttr(root, name);
+      if (!skipped(root)) {
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+          acceptNode(node) {
+            return skipped(node) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+          }
+        });
+        while (walker.nextNode()) trackText(walker.currentNode);
+        for (const el of root.querySelectorAll("*")) {
+          for (const name of ATTRS) trackAttr(el, name);
+        }
       }
-    });
-    while (walker.nextNode()) trackText(walker.currentNode);
-    for (const el of root.querySelectorAll("*")) {
-      for (const name of ATTRS) trackAttr(el, name);
+    }
+    return { texts: trackedTexts.slice(beforeTexts), attrs: trackedAttrs.slice(beforeAttrs) };
+  }
+
+  // Новые узлы (маркеры, каталог, легенда) появляются после загрузки рельефа —
+  // их нужно сразу переводить, иначе в EN-режиме остаётся русский текст.
+  function applyTo(items) {
+    if (lang !== "en") return;
+    for (const node of items.texts) {
+      if (!node.parentNode) continue;
+      const next = translateText(textOriginals.get(node));
+      if (node.nodeValue !== next) node.nodeValue = next;
+    }
+    for (const record of items.attrs) {
+      const original = attrOriginals.get(record.el)[record.name];
+      const next = translateText(original);
+      if (record.el.getAttribute(record.name) !== next) record.el.setAttribute(record.name, next);
     }
   }
 
@@ -8658,15 +8678,15 @@ supportDialog.addEventListener("close", () => {
     let changed = false;
     for (const record of records) {
       if (record.type === "childList") {
-        for (const node of record.addedNodes) capture(node);
+        for (const node of record.addedNodes) applyTo(capture(node));
         if (record.addedNodes.length) changed = true;
       } else if (record.type === "characterData") {
         const node = record.target;
         if (!skipped(node)) {
           trackText(node);
-          if (lang === "en") {
+          if (lang === "en" && textOriginals.has(node)) {
             const next = translateText(textOriginals.get(node));
-            if (node.nodeValue !== next) {
+            if (typeof next === "string" && node.nodeValue !== next) {
               node.nodeValue = next;
               changed = true;
             }
@@ -8675,10 +8695,10 @@ supportDialog.addEventListener("close", () => {
       } else if (record.type === "attributes" && ATTRS.includes(record.attributeName)) {
         const el = record.target;
         trackAttr(el, record.attributeName);
-        if (lang === "en") {
-          const original = attrOriginals.get(el)[record.attributeName];
-          const next = translateText(original);
-          if (el.getAttribute(record.attributeName) !== next) {
+        const tracked = attrOriginals.get(el);
+        if (lang === "en" && tracked && Object.prototype.hasOwnProperty.call(tracked, record.attributeName)) {
+          const next = translateText(tracked[record.attributeName]);
+          if (typeof next === "string" && el.getAttribute(record.attributeName) !== next) {
             el.setAttribute(record.attributeName, next);
             changed = true;
           }
@@ -8715,8 +8735,8 @@ supportDialog.addEventListener("close", () => {
     const english = lang === "en";
     for (const toggle of document.querySelectorAll("[data-lang-toggle]")) {
       toggle.setAttribute("aria-pressed", String(english));
-      toggle.setAttribute("aria-label", english ? "Переключить на русский" : "Switch to English");
-      toggle.setAttribute("title", english ? "Переключить на русский" : "Switch to English");
+      toggle.setAttribute("aria-label", english ? "Switch to Russian" : "Switch to English");
+      toggle.setAttribute("title", english ? "Switch to Russian" : "Switch to English");
       const ru = toggle.querySelector('[data-lang="ru"]');
       const en = toggle.querySelector('[data-lang="en"]');
       if (ru) ru.classList.toggle("active", !english);
