@@ -6,9 +6,9 @@
   "issuedAt": "2026-02-02T06:00:00+05:00",
   "validTo": "2026-02-09T06:00:00+05:00",
   "source": "Alatau Atlas, неофициальный обзор по открытым данным",
-  "sourceUrl": "",
-  "license-note": "Демонстрационный набор. Не является официальным прогнозом и не заменяет его. Вся площадь карты разбита на сетку бассейновых секторов и горизонтальных поясов; уровни приведены для показа механики слоя.",
-  "coordinatesNote": "Границы клеток приблизительные: это схематичные водоразделы и высотные пояса, а не точные границы возможного схода лавины. Клетки не перекрываются и покрывают всю площадь карты.",
+  "sourceUrl": "https://doi.org/10.34753/HS.2022.4.3.230",
+  "license-note": "Демонстрационный набор. Не является официальным прогнозом и не заменяет его. Вся площадь карты разбита на сетку бассейновых секторов и горизонтальных поясов; уровни иллюстративные, но опираются на открытые публикации.",
+  "coordinatesNote": "Границы клеток приблизительные: это схематичные водоразделы и высотные пояса, а не точные границы возможного схода лавины. Ряды 2–3 соответствуют высокогорной зоне метеостанций Шымбулак, БАО и Мынжилки. Клетки не перекрываются и покрывают всю площадь карты.",
   "partition": "basin columns x horizontal bands (non-overlapping grid)",
   "coverage": "full-map",
   "grid": {
@@ -17,6 +17,39 @@
     "cells": 66,
     "cellOrder": "row-major, south to north, per basin column"
   },
+  "method": "Каждая клетка получила иллюстративный уровень 1–5 на основе открытых данных: перечня лавиноопасных участков МЧС РК, практики снеголавинного бюллетеня ИГиВР/Казгидромета и казахстанской региональной пятибалльной шкалы. Уровни НЕ являются прогнозом и НЕ относятся к конкретной дате.",
+  "dataSources": [
+    {
+      "title": "МЧС РК: ответ на запрос Курсива — 55 лавиноопасных участков, 31 в Талгарском районе",
+      "url": "https://kz.kursiv.media/2026-01-16/zhki-v-gorah-almaty-vvedut-novye-mery-bezopasnosti-iz-za-lavin/",
+      "fact": "55 avalanche-prone sites; Talgar district 31; Enbekshikazakh district 24; 165 start zones in Kishi/Ulken Almaty."
+    },
+    {
+      "title": " zakon.kz: где в Алматинской области самые лавиноопасные участки",
+      "url": "https://www.zakon.kz/stati/6462432-snezhnaya-volna-gde-v-almatinskoy-oblasti-samye-lavinoopasnye-uchastki.html",
+      "fact": "Especially dangerous: Esik and Turgen gorges, Eliksai-1, Talgar-1, Kotyrbulak basin, Soldatsai-1."
+    },
+    {
+      "title": "Региональная служба коммуникаций Алматы: лавинная безопасность",
+      "url": "https://rsk.almaty.kz/en/news/3817",
+      "fact": "Monitoring at Shymbulak and BAO; warnings for Kishi/Ulken Almaty; prone basins also Turgen, Kotyrbulak, high-mountain Kaskelen."
+    },
+    {
+      "title": "Благовещенский, Жданов, Гуляева (2022/2023), Опыт выпуска снеголавинного бюллетеня для Заилийского Алатау",
+      "url": "https://doi.org/10.34753/HS.2022.4.3.230",
+      "fact": "Kazakhstan regional five-point scale; weekly bulletin from BAO, Mynzhilki and Shymbulak; 84-90% classification accuracy."
+    },
+    {
+      "title": "МЧС РК: напоминание о лавинной опасности",
+      "url": "https://www.gov.kz/org/kpchs/press/news/details/895665?lang=ru",
+      "fact": "Ile Alatau and Altai are the most avalanche-prone mountain regions; early winter and early spring are the peak periods."
+    },
+    {
+      "title": "EAWS — European Avalanche Danger Scale",
+      "url": "https://www.avalanches.org/standards/avalanche-danger-scale",
+      "fact": "Five-level scale and colours used by the legend."
+    }
+  ],
   "features": [
     {
       "type": "Feature",
@@ -29,10 +62,10 @@
         "level": 2,
         "cellLevels": [
           1,
+          2,
+          2,
+          2,
           1,
-          2,
-          2,
-          2,
           1
         ],
         "labelPoint": [
@@ -42,11 +75,15 @@
         "validFrom": "2026-02-02T06:00:00+05:00",
         "validTo": "2026-02-09T06:00:00+05:00",
         "description": {
-          "ru": "Схематичный бассейновый сектор Узын-Каргалы, разделённый на 6 горизонтальных поясов. Уровни демонстрационные, не прогноз.",
+          "ru": "Схематичный бассейновый сектор Узын-Каргалы, разделённый на 6 горизонтальных поясов. Уровни иллюстративные, не прогноз.",
           "en": "Schematic basin sector of Uzyn Kargaly split into 6 horizontal bands. Levels are illustrative, not a forecast."
         },
+        "evidence": {
+          "ru": "Публичных данных по бассейну нет; уровни заданы по общему высокогорному фону.",
+          "en": "No public basin-specific data; levels follow the general high-mountain background."
+        },
         "source": "Alatau Atlas, неофициальный обзор по открытым данным",
-        "sourceUrl": "",
+        "sourceUrl": "https://doi.org/10.34753/HS.2022.4.3.230",
         "confidence": "illustrative",
         "status": "sample"
       },
@@ -208,14 +245,14 @@
           "ru": "Шамалган",
           "en": "Shamalgan"
         },
-        "level": 3,
+        "level": 2,
         "cellLevels": [
           1,
           2,
           2,
-          3,
           2,
-          2
+          2,
+          1
         ],
         "labelPoint": [
           76.838636,
@@ -224,11 +261,15 @@
         "validFrom": "2026-02-02T06:00:00+05:00",
         "validTo": "2026-02-09T06:00:00+05:00",
         "description": {
-          "ru": "Схематичный бассейновый сектор Шамалган, разделённый на 6 горизонтальных поясов. Уровни демонстрационные, не прогноз.",
+          "ru": "Схематичный бассейновый сектор Шамалган, разделённый на 6 горизонтальных поясов. Уровни иллюстративные, не прогноз.",
           "en": "Schematic basin sector of Shamalgan split into 6 horizontal bands. Levels are illustrative, not a forecast."
         },
+        "evidence": {
+          "ru": "Публичных данных по бассейну нет; уровни заданы по общему высокогорному фону.",
+          "en": "No public basin-specific data; levels follow the general high-mountain background."
+        },
         "source": "Alatau Atlas, неофициальный обзор по открытым данным",
-        "sourceUrl": "",
+        "sourceUrl": "https://doi.org/10.34753/HS.2022.4.3.230",
         "confidence": "illustrative",
         "status": "sample"
       },
@@ -392,12 +433,12 @@
         },
         "level": 3,
         "cellLevels": [
-          1,
           2,
           3,
           3,
           3,
-          2
+          2,
+          1
         ],
         "labelPoint": [
           76.897727,
@@ -406,11 +447,15 @@
         "validFrom": "2026-02-02T06:00:00+05:00",
         "validTo": "2026-02-09T06:00:00+05:00",
         "description": {
-          "ru": "Схематичный бассейновый сектор Каскелен, разделённый на 6 горизонтальных поясов. Уровни демонстрационные, не прогноз.",
+          "ru": "Схематичный бассейновый сектор Каскелен, разделённый на 6 горизонтальных поясов. Уровни иллюстративные, не прогноз.",
           "en": "Schematic basin sector of Kaskelen split into 6 horizontal bands. Levels are illustrative, not a forecast."
         },
+        "evidence": {
+          "ru": "Высокогорный Каскелен назван одним из наиболее лавиноопасных районов (РСК Алматы, 2025).",
+          "en": "High-mountain Kaskelen is named among the most avalanche-prone areas (Almaty RPC, 2025)."
+        },
         "source": "Alatau Atlas, неофициальный обзор по открытым данным",
-        "sourceUrl": "",
+        "sourceUrl": "https://doi.org/10.34753/HS.2022.4.3.230",
         "confidence": "illustrative",
         "status": "sample"
       },
@@ -572,14 +617,14 @@
           "ru": "Аксай",
           "en": "Aksai"
         },
-        "level": 4,
+        "level": 3,
         "cellLevels": [
+          1,
           2,
           2,
           3,
-          4,
-          3,
-          3
+          2,
+          1
         ],
         "labelPoint": [
           76.956818,
@@ -588,11 +633,15 @@
         "validFrom": "2026-02-02T06:00:00+05:00",
         "validTo": "2026-02-09T06:00:00+05:00",
         "description": {
-          "ru": "Схематичный бассейновый сектор Аксай, разделённый на 6 горизонтальных поясов. Уровни демонстрационные, не прогноз.",
+          "ru": "Схематичный бассейновый сектор Аксай, разделённый на 6 горизонтальных поясов. Уровни иллюстративные, не прогноз.",
           "en": "Schematic basin sector of Aksai split into 6 horizontal bands. Levels are illustrative, not a forecast."
         },
+        "evidence": {
+          "ru": "Публичных данных по бассейну нет; уровни заданы по общему высокогорному фону.",
+          "en": "No public basin-specific data; levels follow the general high-mountain background."
+        },
         "source": "Alatau Atlas, неофициальный обзор по открытым данным",
-        "sourceUrl": "",
+        "sourceUrl": "https://doi.org/10.34753/HS.2022.4.3.230",
         "confidence": "illustrative",
         "status": "sample"
       },
@@ -754,14 +803,14 @@
           "ru": "Каргалы",
           "en": "Kargaly"
         },
-        "level": 3,
+        "level": 2,
         "cellLevels": [
           1,
           2,
           2,
-          3,
-          3,
-          2
+          2,
+          2,
+          1
         ],
         "labelPoint": [
           77.015909,
@@ -770,11 +819,15 @@
         "validFrom": "2026-02-02T06:00:00+05:00",
         "validTo": "2026-02-09T06:00:00+05:00",
         "description": {
-          "ru": "Схематичный бассейновый сектор Каргалы, разделённый на 6 горизонтальных поясов. Уровни демонстрационные, не прогноз.",
+          "ru": "Схематичный бассейновый сектор Каргалы, разделённый на 6 горизонтальных поясов. Уровни иллюстративные, не прогноз.",
           "en": "Schematic basin sector of Kargaly split into 6 horizontal bands. Levels are illustrative, not a forecast."
         },
+        "evidence": {
+          "ru": "Публичных данных по бассейну нет; уровни заданы по общему высокогорному фону.",
+          "en": "No public basin-specific data; levels follow the general high-mountain background."
+        },
         "source": "Alatau Atlas, неофициальный обзор по открытым данным",
-        "sourceUrl": "",
+        "sourceUrl": "https://doi.org/10.34753/HS.2022.4.3.230",
         "confidence": "illustrative",
         "status": "sample"
       },
@@ -940,10 +993,10 @@
         "cellLevels": [
           2,
           3,
+          4,
+          4,
           3,
-          4,
-          4,
-          3
+          2
         ],
         "labelPoint": [
           77.075,
@@ -952,11 +1005,15 @@
         "validFrom": "2026-02-02T06:00:00+05:00",
         "validTo": "2026-02-09T06:00:00+05:00",
         "description": {
-          "ru": "Схематичный бассейновый сектор Улкен Алматы, разделённый на 6 горизонтальных поясов. Уровни демонстрационные, не прогноз.",
+          "ru": "Схематичный бассейновый сектор Улкен Алматы, разделённый на 6 горизонтальных поясов. Уровни иллюстративные, не прогноз.",
           "en": "Schematic basin sector of Ulken Almaty split into 6 horizontal bands. Levels are illustrative, not a forecast."
         },
+        "evidence": {
+          "ru": "Мониторинг на станциях БАО и Мынжилки; 165 лавиносборов в бассейнах Кіші/Үлкен Алматы; штормовые предупреждения ДЧС.",
+          "en": "Monitored at BAO and Mynzhilki stations; 165 avalanche start zones in Kishi/Ulken Almaty; DChS storm warnings."
+        },
         "source": "Alatau Atlas, неофициальный обзор по открытым данным",
-        "sourceUrl": "",
+        "sourceUrl": "https://doi.org/10.34753/HS.2022.4.3.230",
         "confidence": "illustrative",
         "status": "sample"
       },
@@ -1118,14 +1175,14 @@
           "ru": "Киши Алматы",
           "en": "Kishi Almaty"
         },
-        "level": 5,
+        "level": 4,
         "cellLevels": [
           2,
           3,
           4,
-          5,
           4,
-          3
+          3,
+          2
         ],
         "labelPoint": [
           77.134091,
@@ -1134,11 +1191,15 @@
         "validFrom": "2026-02-02T06:00:00+05:00",
         "validTo": "2026-02-09T06:00:00+05:00",
         "description": {
-          "ru": "Схематичный бассейновый сектор Киши Алматы, разделённый на 6 горизонтальных поясов. Уровни демонстрационные, не прогноз.",
+          "ru": "Схематичный бассейновый сектор Киши Алматы, разделённый на 6 горизонтальных поясов. Уровни иллюстративные, не прогноз.",
           "en": "Schematic basin sector of Kishi Almaty split into 6 horizontal bands. Levels are illustrative, not a forecast."
         },
+        "evidence": {
+          "ru": "Станции Шымбулак и Мынжилки; еженедельный бюллетень ИГиВР по казахстанской пятибалльной шкале; 165 лавиносборов.",
+          "en": "Shymbulak and Mynzhilki stations; IGiVR weekly bulletin on the Kazakhstan five-point scale; 165 avalanche start zones."
+        },
         "source": "Alatau Atlas, неофициальный обзор по открытым данным",
-        "sourceUrl": "",
+        "sourceUrl": "https://doi.org/10.34753/HS.2022.4.3.230",
         "confidence": "illustrative",
         "status": "sample"
       },
@@ -1300,14 +1361,14 @@
           "ru": "Котырбулак",
           "en": "Kotyrbulak"
         },
-        "level": 5,
+        "level": 4,
         "cellLevels": [
           2,
           3,
           4,
-          5,
-          5,
-          4
+          4,
+          3,
+          2
         ],
         "labelPoint": [
           77.193182,
@@ -1316,11 +1377,15 @@
         "validFrom": "2026-02-02T06:00:00+05:00",
         "validTo": "2026-02-09T06:00:00+05:00",
         "description": {
-          "ru": "Схематичный бассейновый сектор Котырбулак, разделённый на 6 горизонтальных поясов. Уровни демонстрационные, не прогноз.",
+          "ru": "Схематичный бассейновый сектор Котырбулак, разделённый на 6 горизонтальных поясов. Уровни иллюстративные, не прогноз.",
           "en": "Schematic basin sector of Kotyrbulak split into 6 horizontal bands. Levels are illustrative, not a forecast."
         },
+        "evidence": {
+          "ru": "Бассейн Котырбулак назван особо лавиноопасным (МЧС РК, 2025).",
+          "en": "Kotyrbulak basin is listed as especially avalanche-prone (MChS RK, 2025)."
+        },
         "source": "Alatau Atlas, неофициальный обзор по открытым данным",
-        "sourceUrl": "",
+        "sourceUrl": "https://doi.org/10.34753/HS.2022.4.3.230",
         "confidence": "illustrative",
         "status": "sample"
       },
@@ -1484,12 +1549,12 @@
         },
         "level": 4,
         "cellLevels": [
-          1,
           2,
           3,
           4,
           4,
-          3
+          3,
+          2
         ],
         "labelPoint": [
           77.252273,
@@ -1498,11 +1563,15 @@
         "validFrom": "2026-02-02T06:00:00+05:00",
         "validTo": "2026-02-09T06:00:00+05:00",
         "description": {
-          "ru": "Схематичный бассейновый сектор Талгар, разделённый на 6 горизонтальных поясов. Уровни демонстрационные, не прогноз.",
+          "ru": "Схематичный бассейновый сектор Талгар, разделённый на 6 горизонтальных поясов. Уровни иллюстративные, не прогноз.",
           "en": "Schematic basin sector of Talgar split into 6 horizontal bands. Levels are illustrative, not a forecast."
         },
+        "evidence": {
+          "ru": "Талгарский район: 31 из 55 лавиноопасных участков области; ущелья Еликсай, Солдатсай, Ойкарагай, правый Талгар (МЧС РК, 2026).",
+          "en": "Talgar district: 31 of the region's 55 avalanche-prone sites; Eliksai, Soldatsai, Oykaragay, right Talgar gorges (MChS RK, 2026)."
+        },
         "source": "Alatau Atlas, неофициальный обзор по открытым данным",
-        "sourceUrl": "",
+        "sourceUrl": "https://doi.org/10.34753/HS.2022.4.3.230",
         "confidence": "illustrative",
         "status": "sample"
       },
@@ -1664,13 +1733,13 @@
           "ru": "Есік",
           "en": "Esik"
         },
-        "level": 3,
+        "level": 4,
         "cellLevels": [
           1,
           2,
-          2,
           3,
-          3,
+          4,
+          4,
           2
         ],
         "labelPoint": [
@@ -1680,11 +1749,15 @@
         "validFrom": "2026-02-02T06:00:00+05:00",
         "validTo": "2026-02-09T06:00:00+05:00",
         "description": {
-          "ru": "Схематичный бассейновый сектор Есік, разделённый на 6 горизонтальных поясов. Уровни демонстрационные, не прогноз.",
+          "ru": "Схематичный бассейновый сектор Есік, разделённый на 6 горизонтальных поясов. Уровни иллюстративные, не прогноз.",
           "en": "Schematic basin sector of Esik split into 6 horizontal bands. Levels are illustrative, not a forecast."
         },
+        "evidence": {
+          "ru": "Ущелье Есик — особо опасное; автодорога Есик — озеро Есик (МЧС РК, 2025–2026).",
+          "en": "Esik gorge is especially dangerous; Esik lake road (MChS RK, 2025-2026)."
+        },
         "source": "Alatau Atlas, неофициальный обзор по открытым данным",
-        "sourceUrl": "",
+        "sourceUrl": "https://doi.org/10.34753/HS.2022.4.3.230",
         "confidence": "illustrative",
         "status": "sample"
       },
@@ -1846,14 +1919,14 @@
           "ru": "Турген",
           "en": "Turgen"
         },
-        "level": 2,
+        "level": 4,
         "cellLevels": [
           1,
-          1,
-          1,
           2,
-          2,
-          1
+          3,
+          4,
+          4,
+          2
         ],
         "labelPoint": [
           77.370455,
@@ -1862,11 +1935,15 @@
         "validFrom": "2026-02-02T06:00:00+05:00",
         "validTo": "2026-02-09T06:00:00+05:00",
         "description": {
-          "ru": "Схематичный бассейновый сектор Турген, разделённый на 6 горизонтальных поясов. Уровни демонстрационные, не прогноз.",
+          "ru": "Схематичный бассейновый сектор Турген, разделённый на 6 горизонтальных поясов. Уровни иллюстративные, не прогноз.",
           "en": "Schematic basin sector of Turgen split into 6 horizontal bands. Levels are illustrative, not a forecast."
         },
+        "evidence": {
+          "ru": "Ущелье Тургень — особо опасное; автодорога Турген — урочище Батан (МЧС РК, 2025–2026).",
+          "en": "Turgen gorge is especially dangerous; Turgen-Batan road (MChS RK, 2025-2026)."
+        },
         "source": "Alatau Atlas, неофициальный обзор по открытым данным",
-        "sourceUrl": "",
+        "sourceUrl": "https://doi.org/10.34753/HS.2022.4.3.230",
         "confidence": "illustrative",
         "status": "sample"
       },
