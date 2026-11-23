@@ -1,6 +1,6 @@
 /* Alatau Atlas — офлайн-оболочка. Все данные карты встроены в index.html. */
 // При обновлении файлов приложения увеличьте версию: map-v2, map-v3 ...
-const CACHE_NAME = "map-v2";
+const CACHE_NAME = "map-v3";
 const APP_SHELL = [
   "./",
   "./index.html",
