@@ -2,6 +2,14 @@
 
 Offline-capable 3D map of the Almaty mountains with RU/EN language switching.
 
+## Live
+
+https://almaty-alatau-map.pages.dev/
+
+Sitemap: https://almaty-alatau-map.pages.dev/sitemap.xml
+
+Deployed with Cloudflare Pages from `main`.
+
 ## GitHub Pages
 
 1. Open the repository **Settings → Pages**.
