@@ -24,6 +24,7 @@ The app uses relative `./` paths, so it works both at the domain root and at a r
 ## Notes
 
 - All map assets are inlined into `index.html`, including DEM, imagery, photos and route geometry.
-- `sw.js` caches the app shell as `map-v12`. Bump `CACHE_NAME` whenever `index.html` changes.
+- `sw.js` caches the app shell as `map-v13`. Bump `CACHE_NAME` whenever `index.html` changes.
+- A few place photos are loaded from Morena.kz when online; they show a loading shimmer and are retried automatically after the connection returns. All other imagery is bundled offline.
 - The weather widget keeps the last successful forecast in `localStorage` and shows it with an `offline • time` caption when offline.
 - When installed to the iOS Home Screen, launch it once while online so Safari can populate the standalone service worker cache.
